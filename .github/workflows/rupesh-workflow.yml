@@ -2,12 +2,12 @@ name: Deploy to ECR  # Workflow name
 
 on:
   push:
-    branches: [main]  # Change to "development" if you want to trigger this workflow on the development branch.
+    branches: [main]  # Change to "development" if needed
 
 jobs:
   build:
     name: Build and Push Images
-    runs-on: ubuntu-latest  # This workflow runs on the latest Ubuntu runner.
+    runs-on: ubuntu-latest  # Runs on the latest Ubuntu runner.
 
     steps:
     # Step 1: Checkout the repository code
@@ -29,22 +29,23 @@ jobs:
       run: |
         echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
         echo "ECR_REPOSITORY=clo835-ass1" >> $GITHUB_ENV  # Single ECR repository to store both images
-        echo "IMAGE_TAG=latest" >> $GITHUB_ENV  # Tag for the Docker images (modify if needed)
+        echo "MYSQL_IMAGE_TAG=mysql-latest" >> $GITHUB_ENV  # Separate tag for MySQL image
+        echo "APP_IMAGE_TAG=app-latest" >> $GITHUB_ENV  # Separate tag for App image
 
     # Step 4: Build and tag the MySQL Docker image
     - name: Build and tag MySQL Docker Image
       run: |
         docker build -t my_db -f Dockerfile_mysql . 
-        docker tag my_db:latest $ECR_REGISTRY/$ECR_REPOSITORY/my_db:$IMAGE_TAG 
+        docker tag my_db:latest $ECR_REGISTRY/$ECR_REPOSITORY:$MYSQL_IMAGE_TAG  # Use MySQL-specific tag
 
     # Step 5: Build and tag the application Docker image
     - name: Build and tag App Docker Image
       run: |
         docker build -t my_app -f Dockerfile . 
-        docker tag my_app:latest $ECR_REGISTRY/$ECR_REPOSITORY/my_app:$IMAGE_TAG 
+        docker tag my_app:latest $ECR_REGISTRY/$ECR_REPOSITORY:$APP_IMAGE_TAG  # Use App-specific tag
 
     # Step 6: Push both Docker images (MySQL and application) to Amazon ECR
     - name: Push Docker Images to ECR
       run: |
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY/my_db:$IMAGE_TAG  # Push MySQL image to ECR
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY/my_app:$IMAGE_TAG  # Push application image to ECR
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$MYSQL_IMAGE_TAG  # Push MySQL image with its specific tag
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$APP_IMAGE_TAG  # Push App image with its specific tag
