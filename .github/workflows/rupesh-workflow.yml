@@ -1,0 +1,50 @@
+name: Deploy to ECR  # Workflow name
+
+on:
+  push:
+    branches: [main]  # Change to "development" if you want to trigger this workflow on the development branch.
+
+jobs:
+  build:
+    name: Build and Push Images
+    runs-on: ubuntu-latest  # This workflow runs on the latest Ubuntu runner.
+
+    steps:
+    # Step 1: Checkout the repository code
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    # Step 2: Authenticate with Amazon ECR using GitHub Secrets
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}  # AWS Access Key stored in GitHub Secrets
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # AWS Secret Key stored in GitHub Secrets
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}  # AWS Session Token (only needed for temporary credentials)
+        AWS_REGION: us-east-1  # Set your AWS region (modify if needed)
+
+    # Step 3: Define and store environment variables for reuse in subsequent steps
+    - name: Set environment variables
+      run: |
+        echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
+        echo "ECR_REPOSITORY=clo835-ass1" >> $GITHUB_ENV  # Single ECR repository to store both images
+        echo "IMAGE_TAG=latest" >> $GITHUB_ENV  # Tag for the Docker images (modify if needed)
+
+    # Step 4: Build and tag the MySQL Docker image
+    - name: Build and tag MySQL Docker Image
+      run: |
+        docker build -t my_db -f Dockerfile_mysql . 
+        docker tag my_db:latest $ECR_REGISTRY/$ECR_REPOSITORY/my_db:$IMAGE_TAG 
+
+    # Step 5: Build and tag the application Docker image
+    - name: Build and tag App Docker Image
+      run: |
+        docker build -t my_app -f Dockerfile . 
+        docker tag my_app:latest $ECR_REGISTRY/$ECR_REPOSITORY/my_app:$IMAGE_TAG 
+
+    # Step 6: Push both Docker images (MySQL and application) to Amazon ECR
+    - name: Push Docker Images to ECR
+      run: |
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY/my_db:$IMAGE_TAG  # Push MySQL image to ECR
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY/my_app:$IMAGE_TAG  # Push application image to ECR
