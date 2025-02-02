@@ -4,7 +4,6 @@ import os
 import random
 import argparse
 
-
 app = Flask(__name__)
 
 DBHOST = os.environ.get("DBHOST") or "localhost"
@@ -21,7 +20,6 @@ db_conn = connections.Connection(
     user= DBUSER,
     password= DBPWD, 
     db= DATABASE
-    
 )
 output = {}
 table = 'employee';
@@ -36,7 +34,6 @@ color_codes = {
     "darkblue": "#130f40",
     "lime": "#C1FF9C",
 }
-
 
 # Create a string of supported colors
 SUPPORTED_COLORS = ",".join(color_codes.keys())
@@ -60,8 +57,6 @@ def AddEmp():
     last_name = request.form['last_name']
     primary_skill = request.form['primary_skill']
     location = request.form['location']
-
-  
     insert_sql = "INSERT INTO employee VALUES (%s, %s, %s, %s, %s)"
     cursor = db_conn.cursor()
 
