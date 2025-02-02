@@ -170,8 +170,26 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# .gitignore terraform
-.terraform/
-.terraform.lock.hcl
+# Terraform state files
 *.tfstate
 *.tfstate.backup
+*.tfplan
+
+# Terraform module files
+.terraform/
+
+# Terraform lock files (optional, but recommended)
+.terraform.lock.hcl
+
+# Local override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# IDE files (e.g., for VS Code)
+.vscode/
+
+# Sensitive files
+*.pem  # Private keys or other sensitive files
+
