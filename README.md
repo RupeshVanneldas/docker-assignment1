@@ -4,6 +4,9 @@
 ## **Introduction**
 This mini-project demonstrates how to run an application with MySQL using Docker containers. The guide will walk you through setting up a local environment, building Docker images, deploying the application, and integrating AWS services using Terraform. By the end of this project, you will have a fully functional application running in Docker containers locally and on an AWS EC2 instance using AWS Elastic Container Registry (ECR).
 
+## **Architecture**
+![architecture](https://github.com/user-attachments/assets/4f809542-f27d-4767-ad33-d5df6d875277)
+
 ## **Prerequisites**
 
 Fork and clone my repository to follow along.
