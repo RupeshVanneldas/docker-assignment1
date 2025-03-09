@@ -29,23 +29,26 @@ jobs:
       run: |
         echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
         echo "ECR_REPOSITORY=clo835-ass1" >> $GITHUB_ENV  # Single ECR repository to store both images
-        echo "MYSQL_IMAGE_TAG=mysql-latest" >> $GITHUB_ENV  # Separate tag for MySQL image
-        echo "APP_IMAGE_TAG=app-latest" >> $GITHUB_ENV  # Separate tag for App image
+        echo "MYSQL_IMAGE_TAG=my_db_v1" >> $GITHUB_ENV  # MySQL image tag (my_db_v1)
+        echo "APP_V1_IMAGE_TAG=my_app_v1" >> $GITHUB_ENV  # App image tag (my_app_v1)
+        echo "APP_V2_IMAGE_TAG=my_app_v2" >> $GITHUB_ENV  # App image tag (my_app_v2)
 
-    # Step 4: Build and tag the MySQL Docker image
+    # Step 4: Build and tag MySQL Docker image
     - name: Build and tag MySQL Docker Image
       run: |
         docker build -t my_db -f Dockerfile_mysql . 
-        docker tag my_db:latest $ECR_REGISTRY/$ECR_REPOSITORY:$MYSQL_IMAGE_TAG  # Use MySQL-specific tag
+        docker tag my_db:latest $ECR_REGISTRY/$ECR_REPOSITORY:$MYSQL_IMAGE_TAG  # Use my_db_v1 tag
 
-    # Step 5: Build and tag the application Docker image
+    # Step 5: Build and tag the application Docker image (v1 and v2)
     - name: Build and tag App Docker Image
       run: |
         docker build -t my_app -f Dockerfile . 
-        docker tag my_app:latest $ECR_REGISTRY/$ECR_REPOSITORY:$APP_IMAGE_TAG  # Use App-specific tag
+        docker tag my_app:latest $ECR_REGISTRY/$ECR_REPOSITORY:$APP_V1_IMAGE_TAG  # Tag as my_app_v1
+        docker tag my_app:latest $ECR_REGISTRY/$ECR_REPOSITORY:$APP_V2_IMAGE_TAG  # Tag as my_app_v2
 
     # Step 6: Push both Docker images (MySQL and application) to Amazon ECR
     - name: Push Docker Images to ECR
       run: |
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$MYSQL_IMAGE_TAG  # Push MySQL image with its specific tag
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$APP_IMAGE_TAG  # Push App image with its specific tag
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$MYSQL_IMAGE_TAG  # Push MySQL image with my_db_v1 tag
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$APP_V1_IMAGE_TAG  # Push App image with my_app_v1 tag
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$APP_V2_IMAGE_TAG  # Push App image with my_app_v2 tag
