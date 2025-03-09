@@ -5,7 +5,7 @@
 sudo yum update -y  # `yum` is the default package manager on Amazon Linux, and `-y` auto-approves updates.
 
 # Install Docker
-sudo yum install -y docker  # This installs the Docker package.
+sudo yum install -y docker git  # This installs the Docker and Git package.
 
 # Start the Docker service
 sudo systemctl start docker  # `systemctl` starts the Docker service to allow containers to run.

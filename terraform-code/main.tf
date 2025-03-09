@@ -7,7 +7,11 @@ resource "aws_instance" "my_instance" {
   associate_public_ip_address = false                                               # Not assigning a public IP (use private IP for internal access)
   user_data                   = file("${path.module}/docker_installation.sh")       # Run a shell script on instance startup (e.g., install Docker)
   iam_instance_profile        = data.aws_iam_instance_profile.instance_profile.name # Associating an IAM instance profile to allow permissions
-
+  root_block_device {
+    volume_size           = 50    # Set root volume size to 50 GB (adjust as needed)
+    volume_type           = "gp2" # General Purpose SSD
+    delete_on_termination = true
+  }
   lifecycle {
     create_before_destroy = true # Ensures the new instance is created before destroying the old one during updates
   }
@@ -28,28 +32,42 @@ resource "aws_key_pair" "my_key" {
 
 # Security Group for EC2 instance
 resource "aws_security_group" "my_sg" {
-  name        = "allow app and ssh access"              # Name for the security group
-  description = "Allow 8081, 8082, 8083 and ssh access" # Description of allowed access
-  vpc_id      = data.aws_vpc.default.id                 # Security group is tied to the default VPC
+  name        = "allow app and ssh access"                    # Name for the security group
+  description = "Allow 8080, 8081, 8082, 8083 and ssh access" # Description of allowed access
+  vpc_id      = data.aws_vpc.default.id                       # Security group is tied to the default VPC
 
   # Ingress rule for SSH (port 22) access from anywhere
   ingress {
-    description      = "SSH and Application Access"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"] # Allow from any IP
-    ipv6_cidr_blocks = ["::/0"]      # Allow from any IPv6 address
+    description = "SSH and Application Access"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Allow from any IP
   }
 
   # Ingress rule for application ports (8081-8083)
   ingress {
-    description      = "Application Ports (8081-8083)"
-    from_port        = 8081
-    to_port          = 8083
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"] # Allow from any IP
-    ipv6_cidr_blocks = ["::/0"]      # Allow from any IPv6 address
+    description = "Application Ports (8080-8083)"
+    from_port   = 8080
+    to_port     = 8083
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Allow from any IP
+  }
+
+    ingress {
+    description = "DB Ports (3306)"
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Allow from any IP
+  }
+
+  ingress {
+    description = "KIND Application Ports (30000)"
+    from_port   = 30000
+    to_port     = 30000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Allow from any IP
   }
 
   # Egress rule allowing all outbound traffic
