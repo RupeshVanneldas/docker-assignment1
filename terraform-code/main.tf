@@ -54,7 +54,7 @@ resource "aws_security_group" "my_sg" {
     cidr_blocks = ["0.0.0.0/0"] # Allow from any IP
   }
 
-    ingress {
+  ingress {
     description = "DB Ports (3306)"
     from_port   = 3306
     to_port     = 3306

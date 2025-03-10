@@ -10,14 +10,14 @@ variable "default_tags" {
 
 # Variable for the namespace prefix (usually used for naming conventions)
 variable "prefix" {
-  default     = "ass1"             # Default prefix for resources
+  default     = "assignment"       # Default prefix for resources
   type        = string             # Ensures the value is a string
   description = "Namespace prefix" # Description of what the prefix is used for
 }
 
 # Variable for the deployment environment (e.g., dev, staging, prod)
 variable "env" {
-  default     = "dev"                    # Default environment is 'dev'
+  default     = "prod"                   # Default environment is 'prod'
   type        = string                   # Ensures the value is a string
   description = "Deployment Environment" # Description of the environment variable
   validation {
